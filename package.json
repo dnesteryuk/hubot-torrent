@@ -1,0 +1,28 @@
+{
+  "name": "hubot-torrent",
+  "version": "2.6.0",
+
+  "author": "Dmitriy Nesteryuk",
+
+  "keywords": [
+    "hubot",
+    "torrent",
+    "bot"
+  ],
+
+  "description": "Torrent client for Hubot",
+
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/nestd/hubot-torrent.git"
+  },
+
+  "dependencies": {
+    "node-torrent": "git+ssh://git@github.com:superafroman/node-torrent.git"
+  },
+
+  "engines": {
+    "node": ">= 0.8.x",
+    "npm":  ">= 1.1.x"
+  }
+}
