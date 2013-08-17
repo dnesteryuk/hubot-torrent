@@ -2,7 +2,7 @@ require 'torrent_api'
 require 'open-uri'
 require 'json'
 
-torrent_api = TorrentApi.new(:pirate_bay, ARGV[0])
+torrent_api = TorrentApi.new(ARGV[1].to_sym, ARGV[0])
 torrents = torrent_api.results
 
 if torrents.size > 0
