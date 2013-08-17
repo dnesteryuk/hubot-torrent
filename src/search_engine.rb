@@ -1,3 +1,5 @@
+require 'rubygems' unless defined?(Gem)
+require 'bundler/setup'
 require 'torrent_api'
 require 'open-uri'
 require 'json'

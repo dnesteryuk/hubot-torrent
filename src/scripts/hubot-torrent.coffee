@@ -9,7 +9,7 @@
 #
 # Commands:
 #   hubot torrent download <url> - adds a new torrent to the queue
-#   hubot torrent search <query> - search a torrent by a given query
+#   hubot torrent search <torrent_site> <query> - search a torrent by a given query
 #
 # Author:
 #   dnesteryuk
@@ -18,10 +18,12 @@ sys    = require('sys')
 exec   = require('child_process').exec
 
 module.exports = (robot) ->
-  robot.respond /torrent search (.*)/i, (msg) ->
+  robot.respond /torrent search (\w+) (.*)/i, (msg) ->
     exec(
-      "ruby /home/dnesteryuk/projects/hubot-torrent/src/search_engine.rb #{msg.match[1]}"
+      "bundle exec ruby /home/dnesteryuk/projects/hubot-torrent/src/search_engine.rb #{msg.match[1]} #{msg.match[2]}"
       (error, stdout, stderr) ->
+        msg.reply(stdout)
+
         results = JSON.parse(stdout)
 
         if error?
