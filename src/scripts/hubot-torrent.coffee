@@ -16,6 +16,8 @@
 Client = require('node-torrent')
 
 module.exports = (robot) ->
+  client = new Client(logLevel: 'WARN')
+
   robot.respond /torrent search (\w+) (.*)/i, (msg) ->
     service = msg.match[1]
     query   = msg.match[2]
@@ -46,16 +48,16 @@ module.exports = (robot) ->
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
 
-    if parseInt(url) > 0
-      url = robot.lastSearchRes[url - 1].url
-
-    msg.reply("Started downloading #{url}")
-
-    client = new Client(logLevel: 'WARN')
+    if url.match(/^\d+$/)
+      item = robot.lastSearchRes[parseInt(url) - 1]
+      url = 'http://0.0.0.0:4567/torrent-file/' + new Buffer(item.url).toString('base64')
+      native_url = item.url
 
     if robot.downloadingTorrent
       robot.downloadingTorrent.stop()
-      msg.reply("The previous torrent has been stopped")
+      msg.reply('The previous torrent has been stopped')
+
+    msg.reply("Started downloading #{native_url}")
 
     torrent = client.addTorrent(url)
 
@@ -85,7 +87,7 @@ module.exports = (robot) ->
       msg.reply('Oh, you have not started any torrent')
       return
 
-    if robot.downloadingTorrent.isComplete()
+    if robot.downloadingTorrent.stats.downloaded and robot.downloadingTorrent.isComplete()
       msg.reply('The requested torrent is downloaded')
     else
       msg.reply("It is not downloaded. Downloaded: #{robot.downloadingTorrent.stats.downloaded / 1024 / 1024} MB")
