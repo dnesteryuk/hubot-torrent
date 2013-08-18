@@ -9,33 +9,39 @@
 #
 # Commands:
 #   hubot torrent download <url> - adds a new torrent to the queue
-#   hubot torrent search <torrent_site> <query> - search a torrent by a given query
+#   hubot torrent search <service> <query> - search a torrent by a given query
 #
 # Author:
 #   dnesteryuk
 Client = require('node-torrent')
-sys    = require('sys')
-exec   = require('child_process').exec
 
 module.exports = (robot) ->
   robot.respond /torrent search (\w+) (.*)/i, (msg) ->
-    exec(
-      "bundle exec ruby /home/dnesteryuk/projects/hubot-torrent/src/search_engine.rb #{msg.match[1]} #{msg.match[2]}"
-      (error, stdout, stderr) ->
-        msg.reply(stdout)
+    service = msg.match[1]
+    query   = msg.match[2]
 
-        results = JSON.parse(stdout)
+    msg.reply("Searching for #{query} on #{service}")
 
-        if error?
-          msg.reply(error)
+    robot.http("http://0.0.0.0:4567/search/#{msg.match[1]}/#{msg.match[2]}")
+      .get() (err, res, body) ->
+        if err?
+          msg.reply(err)
+          return
+
+        try
+          results = JSON.parse(body)
+        catch e
+          robot.logger.error(e)
+          robot.logger.error(body)
+          return
 
         if results.length
           robot.lastSearchRes = results
 
           for item, index in results
             msg.reply("#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}")
-    )
-
+        else
+          msg.reply('Any torrent was found')
 
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
@@ -45,7 +51,12 @@ module.exports = (robot) ->
 
     msg.reply("Started downloading #{url}")
 
-    client = new Client(logLevel: 'ERROR')
+    client = new Client(logLevel: 'WARN')
+
+    if robot.downloadingTorrent
+      robot.downloadingTorrent.stop()
+      msg.reply("The previous torrent has been stopped")
+
     torrent = client.addTorrent(url)
 
     robot.downloadingTorrent = torrent
@@ -54,6 +65,7 @@ module.exports = (robot) ->
       'complete'
       ->
         msg.reply("Download of #{url} is completed")
+        delete robot.downloadingTorrent
 
         torrent.files.forEach (file) ->
           newPath = '/home/dnesteryuk/Download' + file.path
@@ -61,9 +73,17 @@ module.exports = (robot) ->
           file.path = newPath
     )
 
+    torrent.on(
+      'error'
+      (error) ->
+        msg.reply(error)
+        delete robot.downloadingTorrent
+    )
+
   robot.respond /torrent status/i, (msg) ->
     unless robot.downloadingTorrent
       msg.reply('Oh, you have not started any torrent')
+      return
 
     if robot.downloadingTorrent.isComplete()
       msg.reply('The requested torrent is downloaded')
