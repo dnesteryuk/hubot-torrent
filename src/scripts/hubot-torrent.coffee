@@ -13,10 +13,11 @@
 #
 # Author:
 #   dnesteryuk
-Client = require('node-torrent')
+HubotTorrent = require('hubot-torrent')
 
 module.exports = (robot) ->
-  client = new Client(logLevel: 'WARN')
+  client        = new Client(logLevel: 'DEBUG')
+  torrentClient = new HubotTorrent()
 
   robot.respond /torrent search (\w+) (.*)/i, (msg) ->
     service = msg.match[1]
@@ -24,33 +25,28 @@ module.exports = (robot) ->
 
     msg.reply("Searching for #{query} on #{service}")
 
-    robot.http("http://0.0.0.0:4567/search/#{msg.match[1]}/#{msg.match[2]}")
-      .get() (err, res, body) ->
-        if err?
-          msg.reply(err)
-          return
+    torrentClient.search(msg.match[2], msg.match[1])
 
-        try
-          results = JSON.parse(body)
-        catch e
-          robot.logger.error(e)
-          robot.logger.error(body)
-          return
-
+    torrentClient.on(
+      (results) ->
         if results.length
           robot.lastSearchRes = results
 
-          for item, index in results
-            msg.reply("#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}")
-        else
-          msg.reply('Any torrent was found')
+        for item, index in results
+          msg.reply("#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}")
+    )
+
+    torrentClient.on(
+      'no_result'
+      ->
+        msg.reply('Any torrent was found')
+    )
 
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
 
     if url.match(/^\d+$/)
       item = robot.lastSearchRes[parseInt(url) - 1]
-      url = 'http://0.0.0.0:4567/torrent-file/' + new Buffer(item.url).toString('base64')
       native_url = item.url
 
     if robot.downloadingTorrent
@@ -59,7 +55,7 @@ module.exports = (robot) ->
 
     msg.reply("Started downloading #{native_url}")
 
-    torrent = client.addTorrent(url)
+    torrent = torrentClient.addTorrent(url)
 
     robot.downloadingTorrent = torrent
 
