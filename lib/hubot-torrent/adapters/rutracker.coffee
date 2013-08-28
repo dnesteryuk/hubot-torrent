@@ -1,22 +1,112 @@
 EventEmitter = require('events').EventEmitter
-jsdom = require('jsdom')
+http = require('http')
+querystring = require('querystring')
 
-class RutrackerAdapter
-  trackerUrl: 'http://rutracker.org/'
+class RutrackerAdapter extends EventEmitter
+  trackerHost: 'rutracker.org'
+  pathToLogin: '/forum/login.php'
 
-  contructor: (query) ->
-    __extend(this, EventEmitter)
-
-    @query = @query
+  constructor: (query) ->
+    @query = query
 
   search: ->
-    jsdom.env(
-      @trackerUrl,
-      ['http://code.jquery.com/jquery.js'],
-      (errors, window) ->
-        window.$('input[name="login_username"]').val('nest_d')
-        window.$('input[name="login_password"]').val('')
-        window.$('input[name="login"]').click()
+    this.login()
 
-        throw window.$('#search-text').length
+  login: ->
+    data = querystring.stringify(
+      login_username: 'nest_d'
+      login_password: ''
+      redirect:       'index.php'
+      login:          'Вход'
     )
+
+    options =
+      host:   "login.#{@trackerHost}"
+      port:   80
+      method: 'POST'
+      path:   '/forum/login.php'
+      headers:
+        'Content-Type':   'application/x-www-form-urlencoded'
+        'Content-Length': data.length
+        'Referer':       "http://login.#{@trackerHost}#{@pathToLogin}"
+        'User-Agent':    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+
+    req = http.request(
+      options
+      (res) =>
+        @authCode = res.headers['set-cookie'][0].match(/bb_data=([\w-\d]+);/)[0].replace(';', '')
+
+        this.doSearch()
+    )
+
+    req.on(
+      'error'
+      (e) ->
+        console.log("Got error: #{e.message}")
+    )
+
+    req.write(data)
+
+    req.end()
+#http://dl.rutracker.org/forum/dl.php?t=1768398
+  doSearch: ->
+    options =
+      host:   @trackerHost
+      port:   80
+      method: 'GET'
+      path:   "/forum/tracker.php?nm=#{@query}"
+      headers:
+        'Cookie':     @authCode
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+
+    req = http.request(
+      options
+    )
+
+    req.on(
+      'response'
+      (res) =>
+        html = ''
+
+        res.on(
+          'data'
+          (chunk) =>
+            html += chunk
+        )
+
+        res.on(
+          'end'
+          =>
+            this.parseResp(html)
+        )
+    )
+
+    req.on(
+      'error'
+      (e) ->
+        console.log("Got error: #{e.message}")
+    )
+
+    req.end()
+
+  parseResp: (html) ->
+    jsdom = require('jsdom')
+
+    jsdom.env(
+      html
+      ['http://code.jquery.com/jquery.js']
+      (errors, window) ->
+        if errors
+          console.error(errors)
+        else
+          rows = window.$('.forumline.tablesorter tr')
+
+          window.$.each(
+            rows
+            (index, row) =>
+              console.info( window.$(row).find('a').text())
+          )
+    )
+
+
+module.exports = RutrackerAdapter

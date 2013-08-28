@@ -1,12 +1,10 @@
 Client       = require('node-torrent')
-SearchEngine = require('./hubot-torrent/search_engine')
 EventEmitter = require('events').EventEmitter
+SearchEngine = require('./hubot-torrent/search_engine')
 
-class HubotTorrent
+class HubotTorrent extends EventEmitter
   constructor: ->
-    __extend(this, EventEmitter)
-
-    @client       = new Client()
+    @client       = new Client(logLevel: 'DEBUG')
     @searchEngine = new SearchEngine()
 
     @searchEngine.on(
@@ -16,9 +14,9 @@ class HubotTorrent
     )
 
   search: (args...) ->
-    @searchEngine.search.call(@searchEngine, args)
+    @searchEngine.search.apply(@searchEngine, args)
 
   addTorrent: (url) ->
     @client.addTorrent(url)
 
-exports.hubotTorrent = HubotTorrent
+module.exports = HubotTorrent

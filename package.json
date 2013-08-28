@@ -1,6 +1,6 @@
 {
   "name": "hubot-torrent",
-  "version": "2.6.0",
+  "version": "0.0.1",
 
   "author": "Dmitriy Nesteryuk",
 
@@ -11,12 +11,11 @@
   ],
 
   "description": "Torrent client for Hubot",
-
   "repository" : {
     "type": "git",
     "url": "https://github.com/nestd/hubot-torrent.git"
   },
-  "main": "./lib/hubot-torrent",
+  "main": "./lib/hubot-torrent.coffee",
   "directories": {
     "lib": "./lib"
   },

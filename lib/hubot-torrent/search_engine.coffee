@@ -1,18 +1,17 @@
 RutrackerAdapter = require('./adapters/rutracker')
 EventEmitter = require('events').EventEmitter
 
-class SearchEngine
-  adapters =
+class SearchEngine extends EventEmitter
+  adapters:
     rutracker: RutrackerAdapter
 
   contructor: ->
-    __extend(this, EventEmitter)
 
   search: (query, torrent = 'all') ->
     results = []
 
     adaptersToUse = if torrent is 'all'
-      val for key, val in @adapters
+      val for key, val of @adapters
     else
       unless adapter = @adapters[torrent]
         throw "No adapter #{adapter}"
@@ -20,14 +19,14 @@ class SearchEngine
       [adapter]
 
     for adapterProt in adaptersToUse
-      adapter = new adapterProt(query)
+      tracker = new adapterProt(query)
 
-      adapter.on(
+      tracker.on(
         'result'
         (trackerRes) ->
           results.conctat(trackerRes)
       )
 
-      adapter.search()
+      tracker.search()
 
-exports.searchEngine = SearchEngine
+module.exports = SearchEngine

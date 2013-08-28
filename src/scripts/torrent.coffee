@@ -16,7 +16,6 @@
 HubotTorrent = require('hubot-torrent')
 
 module.exports = (robot) ->
-  client        = new Client(logLevel: 'DEBUG')
   torrentClient = new HubotTorrent()
 
   robot.respond /torrent search (\w+) (.*)/i, (msg) ->
@@ -25,9 +24,8 @@ module.exports = (robot) ->
 
     msg.reply("Searching for #{query} on #{service}")
 
-    torrentClient.search(msg.match[2], msg.match[1])
-
     torrentClient.on(
+      'result'
       (results) ->
         if results.length
           robot.lastSearchRes = results
@@ -41,6 +39,8 @@ module.exports = (robot) ->
       ->
         msg.reply('Any torrent was found')
     )
+
+    torrentClient.search(msg.match[2], msg.match[1])
 
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
