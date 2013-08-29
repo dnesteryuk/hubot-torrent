@@ -24,17 +24,14 @@ module.exports = (robot) ->
 
     msg.reply("Searching for #{query} on #{service}")
 
-    torrentClient.on(
+    torrentClient.once(
       'result'
       (results) ->
-        if results.length
-          robot.lastSearchRes = results
-
         for item, index in results
           msg.reply("#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}")
     )
 
-    torrentClient.on(
+    torrentClient.once(
       'no_result'
       ->
         msg.reply('Sorry, but I did not find any appropriate torrents')
@@ -45,38 +42,34 @@ module.exports = (robot) ->
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
 
-    if url.match(/^\d+$/)
-      item = robot.lastSearchRes[parseInt(url) - 1]
-      native_url = item.url
-
     if robot.downloadingTorrent
       robot.downloadingTorrent.stop()
       msg.reply('The previous torrent has been stopped')
 
-    msg.reply("Started downloading #{native_url}")
+    msg.reply("Started downloading")
 
-    torrent = torrentClient.addTorrent(url)
+    torrentClient.addTorrent(url)
 
-    robot.downloadingTorrent = torrent
+    #robot.downloadingTorrent = torrent
 
-    torrent.on(
-      'complete'
-      ->
-        msg.reply("Download of #{url} is completed")
-        delete robot.downloadingTorrent
+    # torrent.on(
+    #   'complete'
+    #   ->
+    #     msg.reply("Download of #{url} is completed")
+    #     delete robot.downloadingTorrent
 
-        torrent.files.forEach (file) ->
-          newPath = '/home/dnesteryuk/Download' + file.path
-          fs.rename(file.path, newPath)
-          file.path = newPath
-    )
+    #     torrent.files.forEach (file) ->
+    #       newPath = '/home/dnesteryuk/Download' + file.path
+    #       fs.rename(file.path, newPath)
+    #       file.path = newPath
+    # )
 
-    torrent.on(
-      'error'
-      (error) ->
-        msg.reply(error)
-        delete robot.downloadingTorrent
-    )
+    # torrent.on(
+    #   'error'
+    #   (error) ->
+    #     msg.reply(error)
+    #     delete robot.downloadingTorrent
+    # )
 
   robot.respond /torrent status/i, (msg) ->
     unless robot.downloadingTorrent

@@ -14,8 +14,8 @@ class RutrackerAdapter extends EventEmitter
 
   login: ->
     data = querystring.stringify(
-      login_username: 'nest_d'
-      login_password: 'e5kad'
+      login_username: process.env.RUTRACKER_LOGIN
+      login_password: process.env.RUTRACKER_PASSWORD
       redirect:       'index.php'
       login:          'Вход'
     )
@@ -89,6 +89,48 @@ class RutrackerAdapter extends EventEmitter
 
     req.end()
 
+  downloadTorrentFile: (id) ->
+    options =
+      host:   'dl.rutracker.org'
+      port:   80
+      method: 'POST'
+      path:   "/forum/dl.php?t=#{id}"
+      headers:
+        'Content-Type':   'application/x-www-form-urlencoded'
+        'Content-Length': 0
+        'Cookie':         @authCode
+        'User-Agent':     'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+
+    req = http.request(
+      options
+    )
+
+    req.on(
+      'response'
+      (res) =>
+        content = ''
+
+        res.on(
+          'data'
+          (chunk) =>
+            content += chunk
+        )
+
+        res.on(
+          'end'
+          =>
+            this.emit('torrent:file', content)
+        )
+    )
+
+    req.on(
+      'error'
+      (e) ->
+        console.log("Got error: #{e.message}")
+    )
+
+    req.end()
+
   parseResp: (html) ->
     data = []
 
@@ -102,7 +144,6 @@ class RutrackerAdapter extends EventEmitter
           console.error(errors)
         else
           rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
-          console.info(rows.length)
 
           window.$.each(
             rows
@@ -112,9 +153,10 @@ class RutrackerAdapter extends EventEmitter
 
               data.push(
                 name:             a.text()
-                torrent_file_url: "http://dl.rutracker.org/forum/dl.php?t=#{a.data('topic_id')}"
-                size:             cells.eq(5).children('a').text().replace(/[^\w\d\s]+/g, '')
+                torrent_file_url: a.data('topic_id')
+                size:             cells.eq(5).children('a').text().replace(/[^\w\d\s\.]+/g, '')
                 seeds:            cells.eq(6).text()
+                tracker:          this
               )
           )
 
