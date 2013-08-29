@@ -10,7 +10,13 @@ class HubotTorrent extends EventEmitter
     @searchEngine.on(
       'result'
       (result) =>
-        this.trigger('result', result)
+        this.emit('result', result)
+    )
+
+    @searchEngine.on(
+      'no_result'
+      =>
+        this.emit('no_result')
     )
 
   search: (args...) ->

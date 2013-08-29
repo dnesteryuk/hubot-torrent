@@ -37,7 +37,7 @@ module.exports = (robot) ->
     torrentClient.on(
       'no_result'
       ->
-        msg.reply('Any torrent was found')
+        msg.reply('Sorry, but I did not find any appropriate torrents')
     )
 
     torrentClient.search(msg.match[2], msg.match[1])

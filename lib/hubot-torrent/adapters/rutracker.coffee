@@ -15,7 +15,7 @@ class RutrackerAdapter extends EventEmitter
   login: ->
     data = querystring.stringify(
       login_username: 'nest_d'
-      login_password: ''
+      login_password: 'e5kad'
       redirect:       'index.php'
       login:          'Вход'
     )
@@ -48,7 +48,7 @@ class RutrackerAdapter extends EventEmitter
     req.write(data)
 
     req.end()
-#http://dl.rutracker.org/forum/dl.php?t=1768398
+
   doSearch: ->
     options =
       host:   @trackerHost
@@ -90,22 +90,35 @@ class RutrackerAdapter extends EventEmitter
     req.end()
 
   parseResp: (html) ->
+    data = []
+
     jsdom = require('jsdom')
 
     jsdom.env(
       html
       ['http://code.jquery.com/jquery.js']
-      (errors, window) ->
+      (errors, window) =>
         if errors
           console.error(errors)
         else
-          rows = window.$('.forumline.tablesorter tr')
+          rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
+          console.info(rows.length)
 
           window.$.each(
             rows
             (index, row) =>
-              console.info( window.$(row).find('a').text())
+              cells = window.$(row).find('td')
+              a     = cells.eq(3).find('a')
+
+              data.push(
+                name:             a.text()
+                torrent_file_url: "http://dl.rutracker.org/forum/dl.php?t=#{a.data('topic_id')}"
+                size:             cells.eq(5).children('a').text().replace(/[^\w\d\s]+/g, '')
+                seeds:            cells.eq(6).text()
+              )
           )
+
+          this.emit('result', data)
     )
 
 

@@ -8,7 +8,8 @@ class SearchEngine extends EventEmitter
   contructor: ->
 
   search: (query, torrent = 'all') ->
-    results = []
+    @result = []
+    finishedAdapters = 0
 
     adaptersToUse = if torrent is 'all'
       val for key, val of @adapters
@@ -23,10 +24,22 @@ class SearchEngine extends EventEmitter
 
       tracker.on(
         'result'
-        (trackerRes) ->
-          results.conctat(trackerRes)
+        (trackerResult) =>
+          @result = @result.concat(trackerResult)
+
+          finishedAdapters++
+
+          if finishedAdapters is adaptersToUse.length
+            this.triggerResult()
       )
 
       tracker.search()
+
+  triggerResult: ->
+    if @result.length
+      this.emit('result', @result)
+    else
+      this.emit('no_result')
+
 
 module.exports = SearchEngine
