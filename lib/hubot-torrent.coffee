@@ -38,22 +38,8 @@ class HubotTorrent extends EventEmitter
 
       tracker.once(
         'torrent:file'
-        (content) =>
-          fs = require('fs')
-
-          torrentFile = '/tmp/test.torrent'
-
-          fs.unlink(torrentFile)
-
-          fs.writeFile(
-            torrentFile
-            content
-            (err) =>
-              if err
-                console.log(err)
-              else
-                @client.addTorrent('/tmp/test.torrent')
-          )
+        (fileName) =>
+          @client.addTorrent(fileName)
       )
 
       tracker.downloadTorrentFile(url)

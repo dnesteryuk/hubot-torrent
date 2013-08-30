@@ -96,10 +96,20 @@ class RutrackerAdapter extends EventEmitter
       method: 'POST'
       path:   "/forum/dl.php?t=#{id}"
       headers:
-        'Content-Type':   'application/x-www-form-urlencoded'
-        'Content-Length': 0
-        'Cookie':         @authCode
-        'User-Agent':     'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+        'Accept-Encoding': 'gzip,deflate,sdch'
+        'Content-Type':    'application/x-www-form-urlencoded'
+        'Content-Length':  0
+        'Cookie':          "#{@authCode}; bb_dl=#{id}"
+        'User-Agent':      'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+
+    torrentFile = '/tmp/test.torrent'
+
+    fs = require('fs')
+
+    if fs.existsSync(torrentFile)
+      fs.unlink(torrentFile)
+
+    file = fs.createWriteStream(torrentFile)
 
     req = http.request(
       options
@@ -108,18 +118,13 @@ class RutrackerAdapter extends EventEmitter
     req.on(
       'response'
       (res) =>
-        content = ''
-
-        res.on(
-          'data'
-          (chunk) =>
-            content += chunk
-        )
+        res.pipe(file)
 
         res.on(
           'end'
           =>
-            this.emit('torrent:file', content)
+            file.end()
+            this.emit('torrent:file', torrentFile)
         )
     )
 
