@@ -39,8 +39,6 @@ class PslanAdapter extends BaseAdapter
 
     jsdom = require('jsdom')
 
-    #console.info(html)
-
     jsdom.env(
       html
       ['http://code.jquery.com/jquery.js']
@@ -74,11 +72,47 @@ class PslanAdapter extends BaseAdapter
           this.emit('result', data)
     )
 
+  downloadTorrentFile: (id) ->
+    options =
+      host:   @trackerHost
+      port:   80
+      method: 'GET'
+      path:   "/#{id}"
+      headers:
+        'Cookie':     @authCode
+        'User-Agent': @userAgent
+
+    this._doRequest(
+      options
+      (html) =>
+        jsdom = require('jsdom')
+
+        jsdom.env(
+          html
+          ['http://code.jquery.com/jquery.js']
+          (errors, window) =>
+            href = window.$('.index').attr('href')
+
+            options =
+              host:   @trackerHost
+              port:   80
+              method: 'GET'
+              path:   '/' + href.replace(/downloadit/, 'download')
+              headers:
+                'Accept-Encoding': 'gzip,deflate,sdch'
+                'Content-Length':  0
+                'Cookie':          @authCode
+                'User-Agent':      @userAgent
+
+            super options
+        )
+    )
+
   _parseAuthCode: (res) ->
     cookie = res.headers['set-cookie']
 
     uid = cookie[2].match(/uid=(\d+)/)[0]
-    pass = cookie[3].match(/pass=([\w\d]+)/)[0]
+    pass = cookie[3].match(/pass=([\w\d]+)/)[0].replace(';', '')
 
     @authCode = "#{uid}; #{pass}"
 
