@@ -1,9 +1,11 @@
 RutrackerAdapter = require('./adapters/rutracker')
+PslanAdapter = require('./adapters/pslan')
 EventEmitter = require('events').EventEmitter
 
 class SearchEngine extends EventEmitter
   adapters:
     rutracker: RutrackerAdapter
+    pslan:     PslanAdapter
 
   contructor: ->
 
@@ -20,7 +22,7 @@ class SearchEngine extends EventEmitter
       [adapter]
 
     for adapterProt in adaptersToUse
-      tracker = new adapterProt(query)
+      tracker = new adapterProt()
 
       tracker.on(
         'result'
@@ -33,7 +35,7 @@ class SearchEngine extends EventEmitter
             this.triggerResult()
       )
 
-      tracker.search()
+      tracker.search(query)
 
   triggerResult: ->
     if @result.length

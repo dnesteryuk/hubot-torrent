@@ -1,19 +1,11 @@
-EventEmitter = require('events').EventEmitter
-http = require('http')
-querystring = require('querystring')
+BaseAdapter = require('./base')
 
-class RutrackerAdapter extends EventEmitter
+class RutrackerAdapter extends BaseAdapter
   trackerHost: 'rutracker.org'
   pathToLogin: '/forum/login.php'
 
-  constructor: (query) ->
-    @query = query
-
-  search: ->
-    this.login()
-
   login: ->
-    data = querystring.stringify(
+    data = @querystring.stringify(
       login_username: process.env.RUTRACKER_LOGIN
       login_password: process.env.RUTRACKER_PASSWORD
       redirect:       'index.php'
@@ -28,26 +20,10 @@ class RutrackerAdapter extends EventEmitter
       headers:
         'Content-Type':   'application/x-www-form-urlencoded'
         'Content-Length': data.length
-        'Referer':       "http://login.#{@trackerHost}#{@pathToLogin}"
-        'User-Agent':    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+        'Referer':        "http://login.#{@trackerHost}#{@pathToLogin}"
+        'User-Agent':     @userAgent
 
-    req = http.request(
-      options
-      (res) =>
-        @authCode = res.headers['set-cookie'][0].match(/bb_data=([\w-\d]+);/)[0].replace(';', '')
-
-        this.doSearch()
-    )
-
-    req.on(
-      'error'
-      (e) ->
-        console.log("Got error: #{e.message}")
-    )
-
-    req.write(data)
-
-    req.end()
+    super options, data
 
   doSearch: ->
     options =
@@ -57,84 +33,9 @@ class RutrackerAdapter extends EventEmitter
       path:   "/forum/tracker.php?nm=#{@query}"
       headers:
         'Cookie':     @authCode
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
+        'User-Agent': @userAgent
 
-    req = http.request(
-      options
-    )
-
-    req.on(
-      'response'
-      (res) =>
-        html = ''
-
-        res.on(
-          'data'
-          (chunk) =>
-            html += chunk
-        )
-
-        res.on(
-          'end'
-          =>
-            this.parseResp(html)
-        )
-    )
-
-    req.on(
-      'error'
-      (e) ->
-        console.log("Got error: #{e.message}")
-    )
-
-    req.end()
-
-  downloadTorrentFile: (id) ->
-    options =
-      host:   'dl.rutracker.org'
-      port:   80
-      method: 'POST'
-      path:   "/forum/dl.php?t=#{id}"
-      headers:
-        'Accept-Encoding': 'gzip,deflate,sdch'
-        'Content-Type':    'application/x-www-form-urlencoded'
-        'Content-Length':  0
-        'Cookie':          "#{@authCode}; bb_dl=#{id}"
-        'User-Agent':      'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
-
-    torrentFile = '/tmp/test.torrent'
-
-    fs = require('fs')
-
-    if fs.existsSync(torrentFile)
-      fs.unlink(torrentFile)
-
-    file = fs.createWriteStream(torrentFile)
-
-    req = http.request(
-      options
-    )
-
-    req.on(
-      'response'
-      (res) =>
-        res.pipe(file)
-
-        res.on(
-          'end'
-          =>
-            file.end()
-            this.emit('torrent:file', torrentFile)
-        )
-    )
-
-    req.on(
-      'error'
-      (e) ->
-        console.log("Got error: #{e.message}")
-    )
-
-    req.end()
+    super options
 
   parseResp: (html) ->
     data = []
@@ -168,5 +69,22 @@ class RutrackerAdapter extends EventEmitter
           this.emit('result', data)
     )
 
+  downloadTorrentFile: (id) ->
+    options =
+      host:   'dl.rutracker.org'
+      port:   80
+      method: 'POST'
+      path:   "/forum/dl.php?t=#{id}"
+      headers:
+        'Accept-Encoding': 'gzip,deflate,sdch'
+        'Content-Type':    'application/x-www-form-urlencoded'
+        'Content-Length':  0
+        'Cookie':          "#{@authCode}; bb_dl=#{id}"
+        'User-Agent':      @userAgent
+
+    super options
+
+  _parseAuthCode: (res) ->
+    @authCode = res.headers['set-cookie'][0].match(/bb_data=([\w-\d]+);/)[0].replace(';', '')
 
 module.exports = RutrackerAdapter
