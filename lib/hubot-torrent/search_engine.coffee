@@ -17,7 +17,7 @@ class SearchEngine extends EventEmitter
       val for key, val of @adapters
     else
       unless adapter = @adapters[torrent]
-        throw "No adapter #{adapter}"
+        throw "The adapter '#{torrent}' is not registered"
 
       [adapter]
 
@@ -42,6 +42,5 @@ class SearchEngine extends EventEmitter
       this.emit('result', @result)
     else
       this.emit('no_result')
-
 
 module.exports = SearchEngine

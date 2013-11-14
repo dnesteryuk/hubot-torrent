@@ -10,6 +10,8 @@
 # Commands:
 #   hubot torrent download <url> - adds a new torrent to the queue
 #   hubot torrent search <service> <query> - search a torrent by a given query
+#   hubot torrent status - returns info about all torrents
+#   hubot torrent clean - removes all finished torrents
 #
 # Author:
 #   dnesteryuk
@@ -30,9 +32,15 @@ module.exports = (robot) ->
         list = ''
 
         for item, index in results
-          list += "#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}\n"
+          list += "#{index + 1}: Name: #{item.name[0..50]}... Size: #{item.size} Seeds: #{item.seeds}\n"
 
         msg.reply(list)
+
+        info = "To download a desired torrent, please, use \n" +
+          "\ttorrent download <number>\n" +
+          "where 'number' is a number from the list"
+
+        msg.reply(info)
     )
 
     torrentClient.once(
@@ -41,36 +49,54 @@ module.exports = (robot) ->
         msg.reply('Sorry, but I did not find any appropriate torrents')
     )
 
-    torrentClient.search(msg.match[2], msg.match[1])
+    try
+      torrentClient.search(msg.match[2], msg.match[1])
+    catch error
+      msg.reply(error)
 
   robot.respond /torrent download (.*)/i, (msg) ->
-    url = msg.match[1]
+    index = msg.match[1]
 
     msg.reply('Trying to add to queue...')
 
     torrentClient.once(
       'torrent:added'
       ->
-        msg.reply('Torrent added to queue')
+        msg.reply('Torrent is added to queue')
     )
 
-    torrentClient.addTorrent(url)
+    try
+      torrentClient.addTorrent(index)
+    catch error
+      msg.reply(error)
+
+  robot.respond /torrent info (.*)/i, (msg) ->
+    index = msg.match[1]
+
+    try
+      info = torrentClient.fullInfo(index)
+
+      list = "\nName: #{info.name}\n" +
+        "Size: #{info.size}\n" +
+        "Seeds: #{info.seeds}\n"
+
+      msg.reply(list)
+
+    catch error
+      msg.reply(error)
 
   robot.respond /torrent status/i, (msg) ->
-    torrentClient.get (err, arg) ->
+    torrentClient.activeTorrents (err, arg) ->
       if err
         console.error err
       else
-        msg.reply('Active torrents')
+        list = "Active torrents:\n"
 
-        list = ''
-
-        for torrent in arg.torrents
-          unless torrent.isFinished
-            list += "#{torrent.name} #{torrent.percentDone * 100}%\n"
+        for torrent, index in arg.torrents
+          list += "#{torrent.id}: #{torrent.name} #{torrent.status} #{torrent.percentDone * 100}%\n"
 
         msg.reply(list)
 
   robot.respond /torrent clean/i, (msg) ->
-    torrentClient.removeFinished()
-    msg.reply('Removed finished torrents')
+    torrentClient.removeFinishedTorrents()
+    msg.reply('Removed all finished torrents')

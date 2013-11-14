@@ -4,9 +4,11 @@ SearchEngine = require('./hubot-torrent/search_engine')
 
 class HubotTorrent extends EventEmitter
   constructor: ->
+    # TODO: find the way to configure options for
+    # trasmission
     @client = new Transmission(
-      host: 'localhost'
-      port: 9091
+      host:     'localhost'
+      port:     9091
       username: 'transmission'
       password: 'transmission'
     )
@@ -19,8 +21,7 @@ class HubotTorrent extends EventEmitter
         @_lastResult = result
         this.emit('result', result)
 
-        this.removeAllListeners('result')
-        this.removeAllListeners('no_result')
+        this._removeListenersForSearch()
     )
 
     @searchEngine.on(
@@ -28,19 +29,28 @@ class HubotTorrent extends EventEmitter
       =>
         this.emit('no_result')
 
-        this.removeAllListeners('result')
-        this.removeAllListeners('no_result')
+        this._removeListenersForSearch()
     )
 
   search: (args...) ->
     @searchEngine.search.apply(@searchEngine, args)
 
-  get: (err, arg) ->
+  fullInfo: (index) ->
+    if index.match(/^\d+$/)
+      unless @_lastResult
+        throw 'No search results'
+
+      @_lastResult[parseInt(index) - 1]
+
+  activeTorrents: (err, arg) ->
     @client.get(err, arg)
 
-  addTorrent: (url) ->
-    if url.match(/^\d+$/)
-      item = @_lastResult[parseInt(url) - 1] # TODO: it should be moved to search engine
+  addTorrent: (index) ->
+    if index.match(/^\d+$/)
+      unless @_lastResult
+        throw 'No search results'
+
+      item = @_lastResult[parseInt(index) - 1] # TODO: it should be moved to search engine
       url  = item.torrent_file_url
 
       tracker = item.tracker
@@ -60,10 +70,20 @@ class HubotTorrent extends EventEmitter
       )
 
       tracker.downloadTorrentFile(url)
+    else
+      throw 'Number of torrent should be passed'
 
-  removeFinished: ->
-    @client.get (err, arg) ->
+  removeFinishedTorrents: ->
+    @client.get (err, arg) =>
       for torrent in arg.torrents
-        torrent.remove([torrent.id])
+        if torrent.isFinished
+          @client.remove(
+            [torrent.id]
+            ->
+          )
+
+  _removeListenersForSearch: ->
+    this.removeAllListeners('result')
+    this.removeAllListeners('no_result')
 
 module.exports = HubotTorrent
