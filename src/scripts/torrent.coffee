@@ -27,8 +27,12 @@ module.exports = (robot) ->
     torrentClient.once(
       'result'
       (results) ->
+        list = ''
+
         for item, index in results
-          msg.reply("#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}")
+          list += "#{index + 1}: Name: #{item.name} Size: #{item.size} Seeds: #{item.seeds}\n"
+
+        msg.reply(list)
     )
 
     torrentClient.once(
@@ -42,41 +46,31 @@ module.exports = (robot) ->
   robot.respond /torrent download (.*)/i, (msg) ->
     url = msg.match[1]
 
-    if robot.downloadingTorrent
-      robot.downloadingTorrent.stop()
-      msg.reply('The previous torrent has been stopped')
+    msg.reply('Trying to add to queue...')
 
-    msg.reply("Started downloading")
+    torrentClient.once(
+      'torrent:added'
+      ->
+        msg.reply('Torrent added to queue')
+    )
 
     torrentClient.addTorrent(url)
 
-    #robot.downloadingTorrent = torrent
-
-    # torrent.on(
-    #   'complete'
-    #   ->
-    #     msg.reply("Download of #{url} is completed")
-    #     delete robot.downloadingTorrent
-
-    #     torrent.files.forEach (file) ->
-    #       newPath = '/home/dnesteryuk/Download' + file.path
-    #       fs.rename(file.path, newPath)
-    #       file.path = newPath
-    # )
-
-    # torrent.on(
-    #   'error'
-    #   (error) ->
-    #     msg.reply(error)
-    #     delete robot.downloadingTorrent
-    # )
-
   robot.respond /torrent status/i, (msg) ->
-    unless robot.downloadingTorrent
-      msg.reply('Oh, you have not started any torrent')
-      return
+    torrentClient.get (err, arg) ->
+      if err
+        console.error err
+      else
+        msg.reply('Active torrents')
 
-    if robot.downloadingTorrent.stats.downloaded and robot.downloadingTorrent.isComplete()
-      msg.reply('The requested torrent is downloaded')
-    else
-      msg.reply("It is not downloaded. Downloaded: #{robot.downloadingTorrent.stats.downloaded / 1024 / 1024} MB")
+        list = ''
+
+        for torrent in arg.torrents
+          unless torrent.isFinished
+            list += "#{torrent.name} #{torrent.percentDone * 100}%\n"
+
+        msg.reply(list)
+
+  robot.respond /torrent clean/i, (msg) ->
+    torrentClient.removeFinished()
+    msg.reply('Removed finished torrents')

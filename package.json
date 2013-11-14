@@ -20,8 +20,8 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "node-torrent": "git+ssh://git@github.com:superafroman/node-torrent.git",
-    "jsdom":        ">= 0.8.4 < 0.9"
+    "node-transmission": "git://github.com/FLYBYME/node-transmission.git",
+    "jsdom":             ">= 0.8.4 < 0.9"
   },
 
   "engines": {
