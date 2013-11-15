@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "node-transmission": "git://github.com/FLYBYME/node-transmission.git",
-    "jsdom":             ">= 0.8.4 < 0.9"
+    "jsdom":             ">= 0.8.4 < 0.9",
+    "promise":           "3.2.0"
   },
 
   "engines": {
