@@ -1,6 +1,7 @@
 RutrackerAdapter = require('./adapters/rutracker')
-PslanAdapter = require('./adapters/pslan')
-EventEmitter = require('events').EventEmitter
+PslanAdapter     = require('./adapters/pslan')
+EventEmitter     = require('events').EventEmitter
+Promise          = require('promise')
 
 class SearchEngine extends EventEmitter
   adapters:

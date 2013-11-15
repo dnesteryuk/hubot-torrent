@@ -1,4 +1,5 @@
 EventEmitter = require('events').EventEmitter
+Promise      = require('promise')
 
 class BaseAdapter extends EventEmitter
   userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
@@ -10,33 +11,39 @@ class BaseAdapter extends EventEmitter
   search: (query) ->
     @query = query
 
-    this.login()
+    new Promise(
+      this.login
+      this._displayError
+    ).then(
+      this.doSearch
+    )
 
-  login: (requestOptions, data) ->
+  login: (resolve, reject) ->
     req = @http.request(
-      requestOptions
+      this._loginOptions()
     )
 
     req.on(
       'response'
       (res) =>
         this._parseAuthCode(res)
-        this.doSearch()
+        resolve()
     )
 
     req.on(
       'error'
       (e) ->
         console.log("Got error: #{e.message}")
+        reject()
     )
 
-    req.write(data)
+    req.write(this._loginData())
 
     req.end()
 
-  doSearch: (requestOptions) ->
+  doSearch: ->
     this._doRequest(
-      requestOptions
+      this._searchOptions()
       (html) =>
         this.parseResp(html)
     )
@@ -109,5 +116,8 @@ class BaseAdapter extends EventEmitter
 
   _parseAuthCode: ->
     throw 'You have to implement the logic to parse authentication data'
+
+  _displayError: (args...) ->
+    console.info(args)
 
 module.exports = BaseAdapter

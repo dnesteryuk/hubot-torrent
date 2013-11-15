@@ -4,39 +4,6 @@ class RutrackerAdapter extends BaseAdapter
   trackerHost: 'rutracker.org'
   pathToLogin: '/forum/login.php'
 
-  login: ->
-    data = @querystring.stringify(
-      login_username: process.env.RUTRACKER_LOGIN
-      login_password: process.env.RUTRACKER_PASSWORD
-      redirect:       'index.php'
-      login:          'Вход'
-    )
-
-    options =
-      host:   "login.#{@trackerHost}"
-      port:   80
-      method: 'POST'
-      path:   '/forum/login.php'
-      headers:
-        'Content-Type':   'application/x-www-form-urlencoded'
-        'Content-Length': data.length
-        'Referer':        "http://login.#{@trackerHost}#{@pathToLogin}"
-        'User-Agent':     @userAgent
-
-    super options, data
-
-  doSearch: ->
-    options =
-      host:   @trackerHost
-      port:   80
-      method: 'GET'
-      path:   "/forum/tracker.php?nm=#{@query}"
-      headers:
-        'Cookie':     @authCode
-        'User-Agent': @userAgent
-
-    super options
-
   parseResp: (html) ->
     data = []
 
@@ -86,5 +53,33 @@ class RutrackerAdapter extends BaseAdapter
 
   _parseAuthCode: (res) ->
     @authCode = res.headers['set-cookie'][0].match(/bb_data=([\w-\d]+);/)[0].replace(';', '')
+
+  _loginData: ->
+    @querystring.stringify(
+      login_username: process.env.RUTRACKER_LOGIN
+      login_password: process.env.RUTRACKER_PASSWORD
+      redirect:       'index.php'
+      login:          'Вход'
+    )
+
+  _loginOptions: ->
+    host:   "login.#{@trackerHost}"
+    port:   80
+    method: 'POST'
+    path:   '/forum/login.php'
+    headers:
+      'Content-Type':   'application/x-www-form-urlencoded'
+      'Content-Length': @_loginData.length
+      'Referer':        "http://login.#{@trackerHost}#{@pathToLogin}"
+      'User-Agent':     @userAgent
+
+  _searchOptions: ->
+    host:   @trackerHost
+    port:   80
+    method: 'GET'
+    path:   "/forum/tracker.php?nm=#{@query}"
+    headers:
+      'Cookie':     @authCode
+      'User-Agent': @userAgent
 
 module.exports = RutrackerAdapter
