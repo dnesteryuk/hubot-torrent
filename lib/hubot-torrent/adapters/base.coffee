@@ -16,9 +16,10 @@ class BaseAdapter extends EventEmitter
       this._displayError
     ).then(
       this.doSearch
+      this._displayError
     )
 
-  login: (resolve, reject) ->
+  login: (resolve, reject) =>
     req = @http.request(
       this._loginOptions()
     )
@@ -41,7 +42,7 @@ class BaseAdapter extends EventEmitter
 
     req.end()
 
-  doSearch: ->
+  doSearch: =>
     this._doRequest(
       this._searchOptions()
       (html) =>
@@ -117,7 +118,8 @@ class BaseAdapter extends EventEmitter
   _parseAuthCode: ->
     throw 'You have to implement the logic to parse authentication data'
 
-  _displayError: (args...) ->
-    console.info(args)
+  _displayError: (errors) ->
+    for error in errors
+      console.info(error)
 
 module.exports = BaseAdapter

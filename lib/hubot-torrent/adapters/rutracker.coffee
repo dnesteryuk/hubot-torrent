@@ -69,7 +69,7 @@ class RutrackerAdapter extends BaseAdapter
     path:   '/forum/login.php'
     headers:
       'Content-Type':   'application/x-www-form-urlencoded'
-      'Content-Length': @_loginData.length
+      'Content-Length': @_loginData().length
       'Referer':        "http://login.#{@trackerHost}#{@pathToLogin}"
       'User-Agent':     @userAgent
 

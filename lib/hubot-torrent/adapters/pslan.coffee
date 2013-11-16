@@ -99,7 +99,7 @@ class PslanAdapter extends BaseAdapter
     path:   @pathToLogin
     headers:
       'Content-Type':   'application/x-www-form-urlencoded'
-      'Content-Length': @_loginData.length
+      'Content-Length': @_loginData().length
       'User-Agent':     @userAgent
 
   _searchOptions: ->
