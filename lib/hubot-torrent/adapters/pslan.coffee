@@ -4,43 +4,46 @@ class PslanAdapter extends BaseAdapter
   trackerHost: 'www.pslan.com'
   pathToLogin: '/takelogin.php'
 
-  parseResp: (html) ->
+  parseResp: (html) =>
     data = []
 
     jsdom = require('jsdom')
 
-    jsdom.env(
-      html
-      ['http://code.jquery.com/jquery.js']
-      (errors, window) =>
-        if errors
-          console.error(errors)
-        else
-          col = window.$('#highlighted')
+    new Promise(
+      (resolve) =>
+        jsdom.env(
+          html
+          ['http://code.jquery.com/jquery.js']
+          (errors, window) =>
+            if errors
+              console.error(errors)
+            else
+              col = window.$('#highlighted')
 
-          rows = col.find('tr')
+              rows = col.find('tr')
 
-          window.$.each(
-            rows
-            (index, row) =>
-              cells    = window.$(row).find('td')
-              nameCell = cells.eq(1)
+              window.$.each(
+                rows
+                (index, row) =>
+                  cells    = window.$(row).find('td')
+                  nameCell = cells.eq(1)
 
-              pathToDetails = nameCell.find('a').attr('href')
+                  pathToDetails = nameCell.find('a').attr('href')
 
-              seedsLeeches = cells.eq(5).find('b')
+                  seedsLeeches = cells.eq(5).find('b')
 
-              data.push(
-                name:             nameCell.find('a b').text()
-                torrent_file_url: pathToDetails
-                size:             cells.eq(4).text().replace('<br>', '')
-                seeds:            seedsLeeches.eq(0).find('a font').text()
-                tracker:          this
+                  data.push(
+                    name:             nameCell.find('a b').text()
+                    torrent_file_url: pathToDetails
+                    size:             cells.eq(4).text().replace('<br>', '')
+                    seeds:            seedsLeeches.eq(0).find('a font').text()
+                    tracker:          this
+                  )
               )
-          )
 
-          this.emit('result', data)
-    )
+              resolve(data)
+        )
+      )
 
   downloadTorrentFile: (id) ->
     options =

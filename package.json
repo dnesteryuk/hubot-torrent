@@ -24,7 +24,9 @@
     "jsdom":             ">= 0.8.4 < 0.9",
     "promise":           "3.2.0"
   },
-
+  "devDependencies": {
+    "jasmine-node": "1.11.0"
+  },
   "engines": {
     "node": ">= 0.8.x",
     "npm":  ">= 1.1.x"

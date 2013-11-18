@@ -16,7 +16,8 @@ class BaseAdapter extends EventEmitter
       this._displayError
     ).then(
       this.doSearch
-      this._displayError
+    ).then(
+      this.parseResp
     )
 
   login: (resolve, reject) =>
@@ -43,10 +44,13 @@ class BaseAdapter extends EventEmitter
     req.end()
 
   doSearch: =>
-    this._doRequest(
-      this._searchOptions()
-      (html) =>
-        this.parseResp(html)
+    new Promise(
+      (resolve) =>
+        this._doRequest(
+          this._searchOptions()
+          resolve
+        )
+      this._displayError
     )
 
   downloadTorrentFile: (requestOptions) ->
@@ -84,7 +88,7 @@ class BaseAdapter extends EventEmitter
 
     req.end()
 
-  _doRequest: (requestOptions, callback) ->
+  _doRequest: (requestOptions, resolve) ->
     req = @http.request(
       requestOptions
     )
@@ -103,7 +107,7 @@ class BaseAdapter extends EventEmitter
         res.on(
           'end'
           =>
-            callback(html)
+            resolve(html)
         )
     )
 
