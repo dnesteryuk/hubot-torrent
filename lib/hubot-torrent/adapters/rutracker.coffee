@@ -1,4 +1,5 @@
 BaseAdapter = require('./base')
+Promise     = require('promise')
 
 class RutrackerAdapter extends BaseAdapter
   trackerHost: 'rutracker.org'
@@ -9,32 +10,35 @@ class RutrackerAdapter extends BaseAdapter
 
     jsdom = require('jsdom')
 
-    jsdom.env(
-      html
-      ['http://code.jquery.com/jquery.js']
-      (errors, window) =>
-        if errors
-          console.error(errors)
-        else
-          rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
+    new Promise(
+      (resolve) =>
+        jsdom.env(
+          html
+          ['http://code.jquery.com/jquery.js']
+          (errors, window) =>
+            if errors
+              console.error(errors)
+            else
+              rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
 
-          window.$.each(
-            rows
-            (index, row) =>
-              cells = window.$(row).find('td')
-              a     = cells.eq(3).find('a')
+              window.$.each(
+                rows
+                (index, row) =>
+                  cells = window.$(row).find('td')
+                  a     = cells.eq(3).find('a')
 
-              data.push(
-                name:             a.text()
-                torrent_file_url: a.data('topic_id')
-                size:             cells.eq(5).children('a').text().replace(/[^\w\d\s\.]+/g, '')
-                seeds:            cells.eq(6).text()
-                tracker:          this
+                  data.push(
+                    name:             a.text()
+                    torrent_file_url: a.data('topic_id')
+                    size:             cells.eq(5).children('a').text().replace(/[^\w\d\s\.]+/g, '')
+                    seeds:            cells.eq(6).text()
+                    tracker:          this
+                  )
               )
-          )
 
-          this.emit('result', data)
-    )
+              resolve(data)
+        )
+      )
 
   downloadTorrentFile: (id) ->
     options =

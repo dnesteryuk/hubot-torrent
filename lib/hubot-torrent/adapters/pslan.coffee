@@ -1,4 +1,5 @@
 BaseAdapter = require('./base')
+Promise     = require('promise')
 
 class PslanAdapter extends BaseAdapter
   trackerHost: 'www.pslan.com'

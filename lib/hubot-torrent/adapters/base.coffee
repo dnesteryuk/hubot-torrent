@@ -43,7 +43,7 @@ class BaseAdapter extends EventEmitter
 
     req.end()
 
-  doSearch: =>
+  doSearch: (resolve) =>
     new Promise(
       (resolve) =>
         this._doRequest(
@@ -107,6 +107,7 @@ class BaseAdapter extends EventEmitter
         res.on(
           'end'
           =>
+            console.info('got html')
             resolve(html)
         )
     )

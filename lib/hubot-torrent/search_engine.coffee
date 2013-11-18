@@ -42,21 +42,19 @@ class SearchEngine extends EventEmitter
 
     Promise.all(
       promises
-      this._displayError
     ).done(
       this.triggerResult
     )
 
-  triggerResult: (args...) =>
-    console.info('trigger results', args)
+  triggerResult: (results) =>
+    result = []
 
-    if @result.length
-      this.emit('result', @result)
+    for res in results
+      result = result.concat(res)
+
+    if result.length
+      this.emit('result', result)
     else
       this.emit('no_result')
-
-  _displayError: (errors) ->
-    for error in errors
-      console.info(error)
 
 module.exports = SearchEngine
