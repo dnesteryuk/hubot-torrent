@@ -1,5 +1,7 @@
-BaseAdapter = require('./base')
 Promise     = require('promise')
+Buffer      = require('buffer').Buffer
+Iconv       = require('iconv').Iconv
+BaseAdapter = require('./base')
 
 class PslanAdapter extends BaseAdapter
   trackerHost: 'www.pslan.com'
@@ -12,6 +14,10 @@ class PslanAdapter extends BaseAdapter
 
     new Promise(
       (resolve) =>
+        iconv = new Iconv('windows-1251', 'utf-8')
+        html  = new Buffer(html, 'binary')
+        html  = iconv.convert(html).toString()
+
         jsdom.env(
           html
           ['http://code.jquery.com/jquery.js']
@@ -107,10 +113,10 @@ class PslanAdapter extends BaseAdapter
       'User-Agent':     @userAgent
 
   _searchOptions: ->
-    host:   @trackerHost
-    port:   80
-    method: 'GET'
-    path:   "/browse.php?search=#{@query}"
+    host:     @trackerHost
+    port:     80
+    method:   'GET'
+    path:     "/browse.php?search=#{@query}"
     headers:
       'Cookie':     @authCode
       'User-Agent': @userAgent

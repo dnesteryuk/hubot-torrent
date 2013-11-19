@@ -98,6 +98,8 @@ class BaseAdapter extends EventEmitter
       (res) =>
         html = ''
 
+        res.setEncoding('binary')
+
         res.on(
           'data'
           (chunk) =>
@@ -107,7 +109,6 @@ class BaseAdapter extends EventEmitter
         res.on(
           'end'
           =>
-            console.info('got html')
             resolve(html)
         )
     )
