@@ -1,31 +1,89 @@
-hubot-torrent
-=============
+# HubotTorrent
 
 Torrent client for Hubot
 
 # Installation
 
-1. Install NodeJs and Npm (if you have it installed, you can skip this step)
+1. Install NodeJs and Npm
 
-```shell
-echo 'export PATH=$HOME/local/bin:$PATH' >> ~/.bashrc
+  ```bash
+  echo 'export PATH=$HOME/local/bin:$PATH' >> ~/.bashrc
+  
+  . ~/.bashrc
+  mkdir ~/local
+  mkdir ~/node-latest-install
+  
+  cd ~/node-latest-install
+  curl http://nodejs.org/dist/node-latest.tar.gz | tar xz --strip-components=1
+  
+  ./configure --prefix=~/local --without-snapshot # the last argument is required for ARM processors
+  
+  make install
+  
+  curl https://npmjs.org/install.sh | sh
+  ```
 
-. ~/.bashrc
-mkdir ~/local
-mkdir ~/node-latest-install
+2. Install [Transmission daemon](http://www.transmissionbt.com/)
 
-cd ~/node-latest-install
-curl http://nodejs.org/dist/node-latest.tar.gz | tar xz --strip-components=1
+  ```bash
+  sudo apt-get install transmission-daemon
+  ```
+  
+3. Install Hubot
 
-./configure --prefix=~/local --without-snapshot # the last argument is required for ARM processors
+  ```bash
+  npm install -g hubot coffee-script
+  ```
 
-make install
+4. Install Redis
+ 
+  ```bash
+  cd ~/local
+  wget http://download.redis.io/releases/redis-2.8.0.tar.gz
+  tar xzf redis-2.8.0.tar.gz
+  cd redis-2.8.0
+  make
+  ```
 
-curl https://npmjs.org/install.sh | sh
-```
+5. Launch Redis
 
-2. Install Transmission-daemon
+  ```bash
+  src/redis-server  
+  ```
+  
+6. Generate structure for your Hubot and enter to the generated directory
 
-```shell
-sudo apt-get install transmission-daemon
-```
+  ```bash
+  hubot --create myhubot
+  cd myhubot
+  ```
+
+7. Add HubotClient as a dependency to package.json
+
+  ```json
+  "dependencies": {
+    "hubot":         ">= 2.6.0 < 3.0.0",
+    "hubot-scripts": ">= 2.5.0 < 3.0.0",
+    "hubot-torrent": "git://github.com/dnesteryuk/hubot-torrent.git"
+  },
+
+  ```
+  
+8. Install all dependencies
+ 
+  ```bash
+  npm install
+  ```
+
+9. Enable Hubot torrent by adding following line to external-scripts.json
+
+  ```json
+  ["hubot-hubot"]
+  ```
+
+10. Run hubot and enjoy
+
+  ```bash
+  bin/hubot
+  ```
+
