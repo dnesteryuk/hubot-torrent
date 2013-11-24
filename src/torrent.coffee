@@ -15,7 +15,8 @@
 #
 # Author:
 #   dnesteryuk
-HubotTorrent = require('hubot-torrent')
+
+HubotTorrent = require('../lib/hubot-torrent')
 
 module.exports = (robot) ->
   torrentClient = new HubotTorrent()
