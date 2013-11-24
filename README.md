@@ -23,7 +23,7 @@ Torrent client for Hubot
   curl https://npmjs.org/install.sh | sh
   ```
 
-2. Install Transmission-daemon
+2. Install [Transmission daemon](http://www.transmissionbt.com/)
 
   ```bash
   sudo apt-get install transmission-daemon
@@ -34,31 +34,8 @@ Torrent client for Hubot
   ```bash
   npm install -g hubot coffee-script
   ```
-  
-4. Generate structure for your Hubot
 
-  ```bash
-  hubot --create myhubot
-  ```
-
-5. Add HubotClient as a dependency to myhubot/package.json
-
-  ```json
-  "dependencies": {
-    "hubot":         ">= 2.6.0 < 3.0.0",
-    "hubot-scripts": ">= 2.5.0 < 3.0.0",
-    "hubot-torrent": "git://github.com/dnesteryuk/hubot-torrent.git"
-  },
-
-  ```
-6. Install all dependencies
- 
-  ```bash
-  cd myhubo
-  npm install
-  ```
-
-7. Install Redis, you can use this
+4. Install Redis
  
   ```bash
   cd ~/local
@@ -68,13 +45,43 @@ Torrent client for Hubot
   make
   ```
 
-8. Launch Redis
+5. Launch Redis
 
   ```bash
   src/redis-server  
   ```
+  
+6. Generate structure for your Hubot and enter to the generated directory
 
-9. Run hubot from the directory where you have generated it to and enjoy
+  ```bash
+  hubot --create myhubot
+  cd myhubot
+  ```
+
+7. Add HubotClient as a dependency to package.json
+
+  ```json
+  "dependencies": {
+    "hubot":         ">= 2.6.0 < 3.0.0",
+    "hubot-scripts": ">= 2.5.0 < 3.0.0",
+    "hubot-torrent": "git://github.com/dnesteryuk/hubot-torrent.git"
+  },
+
+  ```
+  
+8. Install all dependencies
+ 
+  ```bash
+  npm install
+  ```
+
+9. Enable Hubot torrent by adding following line to external-scripts.json
+
+  ```json
+  ["hubot-hubot"]
+  ```
+
+10. Run hubot and enjoy
 
   ```bash
   bin/hubot
