@@ -78,7 +78,7 @@ Torrent client for Hubot
 9. Enable Hubot torrent by adding following line to external-scripts.json
 
   ```json
-  ["hubot-hubot"]
+  ["hubot-torrent"]
   ```
 
 10. Run hubot and enjoy
