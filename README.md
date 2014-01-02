@@ -8,18 +8,18 @@ Torrent client for Hubot
 
   ```bash
   echo 'export PATH=$HOME/local/bin:$PATH' >> ~/.bashrc
-  
+
   . ~/.bashrc
   mkdir ~/local
   mkdir ~/node-latest-install
-  
+
   cd ~/node-latest-install
   curl http://nodejs.org/dist/node-latest.tar.gz | tar xz --strip-components=1
-  
+
   ./configure --prefix=~/local --without-snapshot # the last argument is required for ARM processors
-  
+
   make install
-  
+
   curl https://npmjs.org/install.sh | sh
   ```
 
@@ -28,7 +28,7 @@ Torrent client for Hubot
   ```bash
   sudo apt-get install transmission-daemon
   ```
-  
+
 3. Install Hubot
 
   ```bash
@@ -36,7 +36,7 @@ Torrent client for Hubot
   ```
 
 4. Install Redis
- 
+
   ```bash
   cd ~/local
   wget http://download.redis.io/releases/redis-2.8.0.tar.gz
@@ -48,9 +48,9 @@ Torrent client for Hubot
 5. Launch Redis
 
   ```bash
-  src/redis-server  
+  src/redis-server
   ```
-  
+
 6. Generate structure for your Hubot and enter to the generated directory
 
   ```bash
@@ -58,19 +58,20 @@ Torrent client for Hubot
   cd myhubot
   ```
 
-7. Add HubotClient as a dependency to package.json
+7. Add dependencies
 
   ```json
   "dependencies": {
-    "hubot":         ">= 2.6.0 < 3.0.0",
-    "hubot-scripts": ">= 2.5.0 < 3.0.0",
-    "hubot-torrent": "git://github.com/dnesteryuk/hubot-torrent.git"
+    "hubot":             ">= 2.6.0 < 3.0.0",
+    "hubot-scripts":     ">= 2.5.0 < 3.0.0",
+    "hubot-torrent":     "git://github.com/dnesteryuk/hubot-torrent.git",
+    "hubot-gtalk-gluck": ">= 2.1.2"
   },
 
   ```
-  
+
 8. Install all dependencies
- 
+
   ```bash
   npm install
   ```
@@ -81,9 +82,16 @@ Torrent client for Hubot
   ["hubot-torrent"]
   ```
 
-10. Run hubot and enjoy
+10. Add environment variables for GTalk (see [readme of hubot-gtalk-gluck](https://github.com/gluck/hubot-gtalk) for more details)
+
+  ```shell
+  export HUBOT_GTALK_USERNAME="example@gmail.com"
+  export HUBOT_GTALK_PASSWORD="example"
+  ```
+
+11. Run hubot and enjoy
 
   ```bash
-  bin/hubot
+  bin/hubot -a gtalk
   ```
 
