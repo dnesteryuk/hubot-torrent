@@ -5,7 +5,7 @@ class RutrackerAdapter extends BaseAdapter
   trackerHost: 'rutracker.org'
   pathToLogin: '/forum/login.php'
 
-  parseResp: (html) ->
+  parseResp: (html) =>
     data = []
 
     jsdom = require('jsdom')
