@@ -92,6 +92,6 @@ Torrent client for Hubot
 11. Run hubot and enjoy
 
   ```bash
-  bin/hubot -a gtalk
+  bin/hubot -a gtalk-gluck
   ```
 
