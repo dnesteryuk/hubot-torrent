@@ -58,7 +58,7 @@ Torrent client for Hubot
   cd myhubot
   ```
 
-7. Add dependencies
+7. Add dependencies into package.json
 
   ```json
   "dependencies": {
