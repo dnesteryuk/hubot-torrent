@@ -8,6 +8,8 @@ class BaseAdapter extends EventEmitter
     @http        = require('http')
     @querystring = require('querystring')
 
+    this._checkAuthData()
+
   search: (query) ->
     @query = query
 
@@ -127,5 +129,8 @@ class BaseAdapter extends EventEmitter
   _displayError: (errors) ->
     for error in errors
       console.info(error)
+
+  _checkAuthData: ->
+    throw 'You have to implement the logic to check authentication data'
 
 module.exports = BaseAdapter
