@@ -58,7 +58,7 @@ Torrent client for Hubot
   cd myhubot
   ```
 
-7. Add dependencies
+7. Add dependencies into package.json
 
   ```json
   "dependencies": {
@@ -92,6 +92,6 @@ Torrent client for Hubot
 11. Run hubot and enjoy
 
   ```bash
-  bin/hubot -a gtalk
+  bin/hubot -a gtalk-gluck
   ```
 
