@@ -2,8 +2,15 @@ BaseAdapter = require('./base')
 Promise     = require('promise')
 
 class RutrackerAdapter extends BaseAdapter
+  trackerName: 'Rutracker'
+
   trackerHost: 'rutracker.org'
   pathToLogin: '/forum/login.php'
+
+  requiredEnvVars: [
+    'RUTRACKER_LOGIN'
+    'RUTRACKER_PASSWORD'
+  ]
 
   parseResp: (html) =>
     data = []

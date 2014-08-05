@@ -4,8 +4,15 @@ Iconv       = require('iconv').Iconv
 BaseAdapter = require('./base')
 
 class PslanAdapter extends BaseAdapter
+  trackerName: 'Pslan'
+
   trackerHost: 'www.pslan.com'
   pathToLogin: '/takelogin.php'
+
+  requiredEnvVars: [
+    'PSLAN_USERNAME'
+    'PSLAN_PASSWORD'
+  ]
 
   parseResp: (html) =>
     data = []
@@ -87,13 +94,6 @@ class PslanAdapter extends BaseAdapter
             super options
         )
     )
-
-  _checkAuthData: ->
-    if !process.env.PSLAN_USERNAME or !process.env.PSLAN_PASSWORD
-      throw 'To use Pslan adapter you need to define credentials to the service. ' +
-        "Please, add following environment variables to ~/.bashrc file\n" +
-        "export PSLAN_USERNAME=\"yourlogin\"\n" +
-        "export PSLAN_PASSWORD=\"yourpassword\""
 
   _parseAuthCode: (res) ->
     cookie = res.headers['set-cookie']

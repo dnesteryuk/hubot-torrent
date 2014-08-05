@@ -4,6 +4,8 @@ Promise      = require('promise')
 class BaseAdapter extends EventEmitter
   userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
 
+  requiredEnvVars: []
+
   constructor: ->
     @http        = require('http')
     @querystring = require('querystring')
@@ -131,6 +133,13 @@ class BaseAdapter extends EventEmitter
       console.info(error)
 
   _checkAuthData: ->
-    throw 'You have to implement the logic to check authentication data'
+    for envVar in @requiredEnvVars
+      unless process.env[envVar]
+        vars = for envVar in @requiredEnvVars
+          "export #{envVar}=\"your value\""
+
+        throw "To use #{@trackerName} adapter you need to define credentials to the service. " +
+          "Please, add following environment variables to ~/.bashrc file\n" +
+          vars.join("\n")
 
 module.exports = BaseAdapter
