@@ -46,6 +46,10 @@ class HubotTorrent extends EventEmitter
     @client.get(err, arg)
 
   addTorrent: (index) ->
+    unless process.env.HUBOT_DOWNLOAD_DIR
+      throw "Please, specify a download directory in ~/.bashrc file\n" +
+        'export HUBOT_DOWNLOAD_DIR="yourpath"'
+
     if index.match(/^\d+$/)
       unless @_lastResult
         throw 'No search results'
@@ -60,7 +64,7 @@ class HubotTorrent extends EventEmitter
         (fileName) =>
           @client.add(
             fileName
-            'download-dir': '/tmp'
+            'download-dir': process.env.HUBOT_DOWNLOAD_DIR
             (err, result) =>
               if err
                 console.info(err)

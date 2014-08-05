@@ -13,20 +13,20 @@
   "description": "Torrent client for Hubot",
   "repository" : {
     "type": "git",
-    "url": "https://github.com/nestd/hubot-torrent.git"
+    "url": "https://github.com/dnesteryuk/hubot-torrent.git"
   },
   "main": "./src/torrent.coffee",
   "directories": {
     "lib": "./lib"
   },
   "dependencies": {
-    "node-transmission": "git://github.com/FLYBYME/node-transmission.git",
-    "jsdom":             ">= 0.8.4 < 0.9",
-    "promise":           "3.2.0",
-    "iconv":             "2.0.7"
+    "transmission": "0.4.0",
+    "jsdom":        "0.11.1",
+    "promise":      "5.0.0",
+    "iconv":        "2.1.4"
   },
   "devDependencies": {
-    "jasmine-node": "1.11.0"
+    "jasmine-node": "1.14.5"
   },
   "engines": {
     "node": ">= 0.8.x",
