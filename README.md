@@ -94,6 +94,7 @@ Torrent client for Hubot
   ```bash
   bin/hubot -a gtalk-gluck
   ```
+
 # Configuration
 
 All configuration options are taken from ~./bashrc or ~./zshrc (if you use ZSH), hence, options should be defined as environment variables.
