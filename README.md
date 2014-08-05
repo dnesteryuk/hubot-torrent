@@ -94,8 +94,21 @@ Torrent client for Hubot
   ```bash
   bin/hubot -a gtalk-gluck
   ```
+# Configuration
 
-# Adapters
+All configuration options are taken from ~./bashrc or ~./zshrc (if you use ZSH), hence, options should be defined as environment variables.
+
+## Download directory
+
+To download directory you have to use `HUBOT_DOWNLOAD_DIR`:
+
+  ```
+  export HUBOT_DOWNLOAD_DIR="/home/tom/Downloads/hubot"
+  ```
+
+*Note*: Make sure this directory has writable permissions.
+
+## Adapters
 
 Now we support only adapters for:
  - [Pslan](http://pslan.com)
@@ -103,14 +116,13 @@ Now we support only adapters for:
  
 Credentials for adapters are taken from `~./bashrc` or `~./zshrc` (if you use [ZSH](http://ohmyz.sh/)) as environment variables:
 
-```
-export PSLAN_USERNAME="yourlogin"
-export PSLAN_PASSWORD="yourpassword"
+  ```
+  export PSLAN_USERNAME="yourlogin"
+  export PSLAN_PASSWORD="yourpassword"
 
-export RUTRACKER_LOGIN="yourlogin"
-export RUTRACKER_PASSWORD="yourpassword"
-
-```
+  export RUTRACKER_LOGIN="yourlogin"
+  export RUTRACKER_PASSWORD="yourpassword"
+  ```
 
 
 
