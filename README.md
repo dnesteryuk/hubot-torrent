@@ -95,3 +95,22 @@ Torrent client for Hubot
   bin/hubot -a gtalk-gluck
   ```
 
+# Adapters
+
+Now we support only adapters for:
+ - [Pslan](http://pslan.com)
+ - [Rutracker](http://rutracker.org)
+ 
+Credentials for adapters are taken from `~./bashrc` or `~./zshrc` (if you use [ZSH](http://ohmyz.sh/)) as environment variables:
+
+```
+export PSLAN_USERNAME="yourlogin"
+export PSLAN_PASSWORD="yourpassword"
+
+export RUTRACKER_LOGIN="yourlogin"
+export RUTRACKER_PASSWORD="yourpassword"
+
+```
+
+
+
