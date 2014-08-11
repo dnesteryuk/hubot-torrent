@@ -97,19 +97,19 @@ Torrent client for Hubot
 
 # Configuration
 
-All configuration options are taken from ~./bashrc or ~./zshrc (if you use ZSH), hence, options should be defined as environment variables.
+All configuration options are taken environment variables, hence, you should define them in `~./bashrc` or `~./zshrc` (if you use ZSH) or you can define them while launching your hubot.
 
-## Download directory
+### Download directory
 
-To download directory you have to use `HUBOT_DOWNLOAD_DIR`:
+To set download directory you have to use `HUBOT_DOWNLOAD_DIR`:
 
   ```
   export HUBOT_DOWNLOAD_DIR="/home/tom/Downloads/hubot"
   ```
 
-*Note*: Make sure this directory has writable permissions.
+**Note:* Make sure this directory has writable permissions.
 
-## Adapters
+### Adapters
 
 Now we support only adapters for:
  - [Pslan](http://pslan.com)
