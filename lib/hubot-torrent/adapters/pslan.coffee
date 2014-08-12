@@ -120,12 +120,10 @@ class PslanAdapter extends BaseAdapter
       'User-Agent':     @userAgent
 
   _searchOptions: ->
-    query = @querystring.stringify(@query)
-
     host:     @trackerHost
     port:     80
     method:   'GET'
-    path:     "/browse.php?search=#{query}"
+    path:     "/browse.php?search=#{@query}"
     headers:
       'Cookie':     @authCode
       'User-Agent': @userAgent
