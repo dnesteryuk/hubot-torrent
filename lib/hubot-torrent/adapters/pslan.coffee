@@ -14,8 +14,7 @@ class PslanAdapter extends BaseAdapter
   ]
 
   parseResp: (html) =>
-    parser = new Parser(html, this)
-    parser.parse()
+    new Parser(html, this).parse()
 
   downloadTorrentFile: (id) ->
     options =
