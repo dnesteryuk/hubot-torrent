@@ -1,5 +1,6 @@
-BaseAdapter = require('./base')
 Promise     = require('promise')
+BaseAdapter = require('./base')
+Parser      = require('./rutracker/parser')
 
 class RutrackerAdapter extends BaseAdapter
   trackerName: 'Rutracker'
@@ -13,39 +14,7 @@ class RutrackerAdapter extends BaseAdapter
   ]
 
   parseResp: (html) =>
-    data = []
-
-    jsdom = require('jsdom')
-
-    new Promise(
-      (resolve) =>
-        jsdom.env(
-          html
-          ['http://code.jquery.com/jquery.js']
-          (errors, window) =>
-            if errors
-              console.error(errors)
-            else
-              rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
-
-              window.$.each(
-                rows
-                (index, row) =>
-                  cells = window.$(row).find('td')
-                  a     = cells.eq(3).find('a')
-
-                  data.push(
-                    name:             a.text()
-                    torrent_file_url: a.data('topic_id')
-                    size:             cells.eq(5).children('a').text().replace(/[^\w\d\s\.]+/g, '')
-                    seeds:            cells.eq(6).text()
-                    tracker:          this
-                  )
-              )
-
-              resolve(data)
-        )
-      )
+    new Parser(html, this).parse()
 
   downloadTorrentFile: (id) ->
     options =
