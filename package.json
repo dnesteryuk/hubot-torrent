@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "transmission": "0.4.0",
-    "jsdom":        "0.11.1",
+    "jsdom":        "1.0.0-pre.3",
     "promise":      "5.0.0",
     "iconv":        "2.1.4"
   },

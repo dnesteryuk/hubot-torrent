@@ -6,3 +6,4 @@
 6. Add possibility to register new adapters
 7. Code for parsing search results should be in own classes
 8. Solve the issue with encoding
+9. Add code to catch an error while parsing HTML

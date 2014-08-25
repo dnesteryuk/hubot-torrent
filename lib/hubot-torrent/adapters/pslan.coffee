@@ -2,6 +2,7 @@ Promise     = require('promise')
 Buffer      = require('buffer').Buffer
 Iconv       = require('iconv').Iconv
 BaseAdapter = require('./base')
+Parser = require('./pslan/parser')
 
 class PslanAdapter extends BaseAdapter
   trackerName: 'Pslan'
