@@ -22,4 +22,7 @@ class Parser
         )
     )
 
+  extractItems: (window) ->
+    new Extractor(window, tracker: @_tracker).extract()
+
 module.exports = Parser
