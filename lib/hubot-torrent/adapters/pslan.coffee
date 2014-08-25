@@ -1,8 +1,6 @@
 Promise     = require('promise')
-Buffer      = require('buffer').Buffer
-Iconv       = require('iconv').Iconv
 BaseAdapter = require('./base')
-Parser = require('./pslan/parser')
+Parser      = require('./pslan/parser')
 
 class PslanAdapter extends BaseAdapter
   trackerName: 'Pslan'
@@ -16,49 +14,8 @@ class PslanAdapter extends BaseAdapter
   ]
 
   parseResp: (html) =>
-    data = []
-
-    jsdom = require('jsdom')
-
-    new Promise(
-      (resolve) =>
-        iconv = new Iconv('windows-1251', 'utf-8')
-        html  = new Buffer(html, 'binary')
-        html  = iconv.convert(html).toString()
-
-        jsdom.env(
-          html
-          ['http://code.jquery.com/jquery.js']
-          (errors, window) =>
-            if errors
-              console.error(errors)
-            else
-              col = window.$('#highlighted')
-
-              rows = col.find('tr')
-
-              window.$.each(
-                rows
-                (index, row) =>
-                  cells    = window.$(row).find('td')
-                  nameCell = cells.eq(1)
-
-                  pathToDetails = nameCell.find('a').attr('href')
-
-                  seedsLeeches = cells.eq(5).find('b')
-
-                  data.push(
-                    name:             nameCell.find('a b').text()
-                    torrent_file_url: pathToDetails
-                    size:             cells.eq(4).text().replace('<br>', '')
-                    seeds:            seedsLeeches.eq(0).find('a font').text()
-                    tracker:          this
-                  )
-              )
-
-              resolve(data)
-        )
-      )
+    parser = new Parser(html, this)
+    parser.parse()
 
   downloadTorrentFile: (id) ->
     options =
