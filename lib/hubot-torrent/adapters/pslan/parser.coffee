@@ -1,66 +1,52 @@
-Promise = require('promise')
-fs      = require('fs')
-
 Buffer  = require('buffer').Buffer
 Iconv   = require('iconv').Iconv
+_       = require('underscore')
+BaseParser = require('../base/parser')
 
-class Parser
-  constructor: (@_html, @_tracker) ->
-    @_jquery  = fs.readFileSync("#{__dirname}/../../../../src/jquery.js", 'utf-8')
+class Parser extends BaseParser
+  constructor: ->
+    super
 
-    iconv   = new Iconv('windows-1251', 'utf-8')
-    @_html  = iconv.convert(
+    iconv  = new Iconv('windows-1251', 'utf-8')
+    @_html = iconv.convert(
       new Buffer(@_html, 'binary')
     ).toString()
 
-    @_jsdom = require('jsdom')
-
-  parse: ->
-    new Promise(
-      (resolve) =>
-        @_jsdom.env(
-          html: @_html
-          src:  [@_jquery]
-          done: (errors, window) =>
-            if errors
-              console.error(errors)
-            else
-              data = this.extractItems(window)
-              resolve(data)
-        )
-    )
-
   extractItems: (window) ->
+    new Extractor(window, tracker: @_tracker).extract()
+
+class Extractor
+  constructor: (@_window, @_additional) ->
+    @_table = @_window.$('#highlighted')
+
+  extract: ->
     data = []
 
-    col = window.$('#highlighted')
+    if @_table.length
+      rows = @_table.find('tr')
 
-    if col.length
-      rows = col.find('tr')
-
-      window.$.each(
+      @_window.$.each(
         rows
         (index, row) =>
-          item = this._extractItem(row, window)
+          item = this.extractItem(row)
           data.push(item)
       )
 
     data
 
-  _extractItem: (row, window) ->
-    cells    = window.$(row).find('td')
+  extractItem: (row) ->
+    cells    = @_window.$(row).find('td')
     nameCell = cells.eq(1)
 
     pathToDetails = nameCell.find('a').attr('href')
 
     seedsLeeches = cells.eq(5).find('b')
 
-    {
+    _.extend({
       name:             nameCell.find('a b').text()
       torrent_file_url: pathToDetails
       size:             parseInt(cells.eq(4).text().replace('<br>', ''))
       seeds:            parseInt(seedsLeeches.eq(0).find('a font').text())
-      tracker:          @_tracker
-    }
+    }, @_additional)
 
 module.exports = Parser

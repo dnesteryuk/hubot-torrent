@@ -23,7 +23,8 @@
     "transmission": "0.4.0",
     "jsdom":        "1.0.0-pre.3",
     "promise":      "5.0.0",
-    "iconv":        "2.1.4"
+    "iconv":        "2.1.4",
+    "underscore":   "1.6.0"
   },
   "devDependencies": {
     "jasmine-node": "1.14.5"
