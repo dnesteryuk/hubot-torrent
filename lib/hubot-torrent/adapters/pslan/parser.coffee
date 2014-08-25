@@ -1,6 +1,6 @@
-Buffer  = require('buffer').Buffer
-Iconv   = require('iconv').Iconv
-_       = require('underscore')
+Buffer     = require('buffer').Buffer
+Iconv      = require('iconv').Iconv
+_          = require('underscore')
 BaseParser = require('../base/parser')
 
 class Parser extends BaseParser
@@ -45,7 +45,7 @@ class Extractor
     _.extend({
       name:             nameCell.find('a b').text()
       torrent_file_url: pathToDetails
-      size:             parseInt(cells.eq(4).text().replace('<br>', ''))
+      size:             cells.eq(4).text().replace('<br>', '')
       seeds:            parseInt(seedsLeeches.eq(0).find('a font').text())
     }, @_additional)
 
