@@ -1,18 +1,8 @@
 EventEmitter = require('events').EventEmitter
 Promise      = require('promise')
 
-Authorizer   = require('./authorizer')
-
 class BaseAdapter extends EventEmitter
-  userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
-
-  requiredEnvVars: []
-
-  constructor: ->
-    @_authorizer = new Authorizer(
-      this._authorizeGranter()
-    )
-
+  constructor: (@_authorizer) ->
     @http        = require('http')
     @querystring = require('querystring')
 

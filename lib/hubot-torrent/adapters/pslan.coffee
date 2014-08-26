@@ -1,6 +1,10 @@
-Promise     = require('promise')
-BaseAdapter = require('./base')
-Parser      = require('./pslan/parser')
+Promise          = require('promise')
+BaseAdapter      = require('./base')
+
+Authorizer       = require('./authorizer')
+
+Parser           = require('./pslan/parser')
+AuthorizeGranter = require('./pslan/authorize_granter')
 
 class PslanAdapter extends BaseAdapter
   _trackerHost: 'www.pslan.com'
@@ -50,9 +54,11 @@ class PslanAdapter extends BaseAdapter
     headers:
       'Cookie': @_authorizer.authorizeData()
 
-  _authorizeGranter: ->
-    AuthorizeGranter = require('./pslan/authorize_granter')
-
+PslanAdapter.build = ->
+  authorizer = new Authorizer(
     new AuthorizeGranter()
+  )
+
+  new PslanAdapter(authorizer)
 
 module.exports = PslanAdapter

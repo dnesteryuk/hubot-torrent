@@ -1,6 +1,10 @@
-Promise     = require('promise')
-BaseAdapter = require('./base')
-Parser      = require('./rutracker/parser')
+Promise          = require('promise')
+BaseAdapter      = require('./base')
+
+Authorizer       = require('./authorizer')
+
+Parser           = require('./rutracker/parser')
+AuthorizeGranter = require('./rutracker/authorize_granter')
 
 class RutrackerAdapter extends BaseAdapter
   _trackerHost: 'rutracker.org'
@@ -30,9 +34,11 @@ class RutrackerAdapter extends BaseAdapter
     headers:
       'Cookie': @_authorizer.authorizeData()
 
-  _authorizeGranter: ->
-    AuthorizeGranter = require('./rutracker/authorize_granter')
-
+RutrackerAdapter.build = ->
+  authorizer = new Authorizer(
     new AuthorizeGranter()
+  )
+
+  new RutrackerAdapter(authorizer)
 
 module.exports = RutrackerAdapter

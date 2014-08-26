@@ -37,7 +37,7 @@ class SearchEngine extends EventEmitter
     #   )
 
     promises = for adapterProt in adaptersToUse
-      tracker = new adapterProt()
+      tracker = adapterProt.build()
       tracker.search(query)
 
     Promise.all(
