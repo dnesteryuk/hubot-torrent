@@ -1,6 +1,6 @@
 class AuthorizeGranter
-  _pathToLogin: '/takelogin.php'
   _trackerHost: 'www.pslan.com'
+  _pathToLogin: '/takelogin.php'
 
   _requiredEnvVars: [
     'PSLAN_USERNAME'
