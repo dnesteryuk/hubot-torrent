@@ -6,7 +6,7 @@ class Authorizer
 
     @_http = require('http')
 
-  authorize: (resolve, reject) ->
+  authorize: (resolve, reject) =>
     opts = @_granter.authorizeOptions()
     opts.headers['User-Agent'] = @_userAgent
 
