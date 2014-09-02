@@ -21,12 +21,14 @@
   },
   "dependencies": {
     "transmission": "0.4.0",
-    "jsdom":        "0.11.1",
+    "jsdom":        "1.0.0-pre.3",
     "promise":      "5.0.0",
-    "iconv":        "2.1.4"
+    "iconv":        "2.1.4",
+    "underscore":   "1.6.0"
   },
   "devDependencies": {
-    "jasmine-node": "1.14.5"
+    "jasmine-node": "1.14.5",
+    "nock":         "0.45.0"
   },
   "engines": {
     "node": ">= 0.8.x",

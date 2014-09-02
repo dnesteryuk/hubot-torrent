@@ -1,51 +1,16 @@
-BaseAdapter = require('./base')
-Promise     = require('promise')
+Promise          = require('promise')
+BaseAdapter      = require('./base')
+
+Authorizer       = require('./authorizer')
+
+Parser           = require('./rutracker/parser')
+AuthorizeGranter = require('./rutracker/authorize_granter')
 
 class RutrackerAdapter extends BaseAdapter
-  trackerName: 'Rutracker'
-
-  trackerHost: 'rutracker.org'
-  pathToLogin: '/forum/login.php'
-
-  requiredEnvVars: [
-    'RUTRACKER_LOGIN'
-    'RUTRACKER_PASSWORD'
-  ]
+  _trackerHost: 'rutracker.org'
 
   parseResp: (html) =>
-    data = []
-
-    jsdom = require('jsdom')
-
-    new Promise(
-      (resolve) =>
-        jsdom.env(
-          html
-          ['http://code.jquery.com/jquery.js']
-          (errors, window) =>
-            if errors
-              console.error(errors)
-            else
-              rows = window.$('.forumline.tablesorter tbody tr.hl-tr')
-
-              window.$.each(
-                rows
-                (index, row) =>
-                  cells = window.$(row).find('td')
-                  a     = cells.eq(3).find('a')
-
-                  data.push(
-                    name:             a.text()
-                    torrent_file_url: a.data('topic_id')
-                    size:             cells.eq(5).children('a').text().replace(/[^\w\d\s\.]+/g, '')
-                    seeds:            cells.eq(6).text()
-                    tracker:          this
-                  )
-              )
-
-              resolve(data)
-        )
-      )
+    new Parser(html, this).parse()
 
   downloadTorrentFile: (id) ->
     options =
@@ -57,40 +22,23 @@ class RutrackerAdapter extends BaseAdapter
         'Accept-Encoding': 'gzip,deflate,sdch'
         'Content-Type':    'application/x-www-form-urlencoded'
         'Content-Length':  0
-        'Cookie':          "#{@authCode}; bb_dl=#{id}"
-        'User-Agent':      @userAgent
+        'Cookie':          "#{@_authorizer.authorizeData()}; bb_dl=#{id}"
 
     super options
 
-  _parseAuthCode: (res) ->
-    @authCode = res.headers['set-cookie'][0].match(/bb_data=([\w-\d]+);/)[0].replace(';', '')
-
-  _loginData: ->
-    @querystring.stringify(
-      login_username: process.env.RUTRACKER_LOGIN
-      login_password: process.env.RUTRACKER_PASSWORD
-      redirect:       'index.php'
-      login:          'Вход'
-    )
-
-  _loginOptions: ->
-    host:   "login.#{@trackerHost}"
-    port:   80
-    method: 'POST'
-    path:   '/forum/login.php'
-    headers:
-      'Content-Type':   'application/x-www-form-urlencoded'
-      'Content-Length': @_loginData().length
-      'Referer':        "http://login.#{@trackerHost}#{@pathToLogin}"
-      'User-Agent':     @userAgent
-
   _searchOptions: ->
-    host:   @trackerHost
+    host:   @_trackerHost
     port:   80
     method: 'GET'
     path:   "/forum/tracker.php?nm=#{@query}"
     headers:
-      'Cookie':     @authCode
-      'User-Agent': @userAgent
+      'Cookie': @_authorizer.authorizeData()
+
+RutrackerAdapter.build = ->
+  authorizer = new Authorizer(
+    new AuthorizeGranter()
+  )
+
+  new RutrackerAdapter(authorizer)
 
 module.exports = RutrackerAdapter

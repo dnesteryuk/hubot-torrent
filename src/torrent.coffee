@@ -17,6 +17,7 @@
 #   dnesteryuk
 
 HubotTorrent = require('../lib/hubot-torrent')
+SearchResultsResponder = require('../lib/hubot-torrent/responders/search_results')
 
 module.exports = (robot) ->
   torrentClient = new HubotTorrent()
@@ -27,15 +28,12 @@ module.exports = (robot) ->
 
     msg.reply("Searching for #{query} on #{service}")
 
+    responder = new SearchResultsResponder(msg)
+
     torrentClient.once(
       'result'
       (results) ->
-        list = ''
-
-        for item, index in results
-          list += "#{index + 1}: Name: #{item.name[0..50]}... Size: #{item.size} Seeds: #{item.seeds}\n"
-
-        msg.reply(list)
+        responder.respond(results)
 
         info = "To download a desired torrent, please, use \n" +
           "\ttorrent download <number>\n" +

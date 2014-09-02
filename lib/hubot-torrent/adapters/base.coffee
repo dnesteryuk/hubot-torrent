@@ -2,50 +2,21 @@ EventEmitter = require('events').EventEmitter
 Promise      = require('promise')
 
 class BaseAdapter extends EventEmitter
-  userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:23.0) Gecko/20100101 Firefox/23.0'
-
-  requiredEnvVars: []
-
-  constructor: ->
+  constructor: (@_authorizer) ->
     @http        = require('http')
     @querystring = require('querystring')
-
-    this._checkAuthData()
 
   search: (query) ->
     @query = query
 
     new Promise(
-      this.login
+      @_authorizer.authorize
       this._displayError
     ).then(
       this.doSearch
     ).then(
       this.parseResp
     )
-
-  login: (resolve, reject) =>
-    req = @http.request(
-      this._loginOptions()
-    )
-
-    req.on(
-      'response'
-      (res) =>
-        this._parseAuthCode(res)
-        resolve()
-    )
-
-    req.on(
-      'error'
-      (e) ->
-        console.log("Got error: #{e.message}")
-        reject()
-    )
-
-    req.write(this._loginData())
-
-    req.end()
 
   doSearch: (resolve) =>
     new Promise(
@@ -125,21 +96,8 @@ class BaseAdapter extends EventEmitter
 
     req.end()
 
-  _parseAuthCode: ->
-    throw 'You have to implement the logic to parse authentication data'
-
   _displayError: (errors) ->
     for error in errors
       console.info(error)
-
-  _checkAuthData: ->
-    for envVar in @requiredEnvVars
-      unless process.env[envVar]
-        vars = for envVar in @requiredEnvVars
-          "export #{envVar}=\"your value\""
-
-        throw "To use #{@trackerName} adapter you need to define credentials to the service. " +
-          "Please, add following environment variables to ~/.bashrc file\n" +
-          vars.join("\n")
 
 module.exports = BaseAdapter
